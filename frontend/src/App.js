@@ -1,7 +1,11 @@
 import logo from "./logo.svg";
-
+import { BrowserRouter, Router, Routes } from "react-router-dom";
 function App() {
-  return <div className="App"></div>;
+  return (
+    <Router>
+      <Routes></Routes>
+    </Router>
+  );
 }
 
 export default App;
