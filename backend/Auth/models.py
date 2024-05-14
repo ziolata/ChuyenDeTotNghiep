@@ -31,6 +31,8 @@ class UserCustom(AbstractBaseUser, PermissionsMixin):
     fullname = models.CharField(max_length=50, default = None, null = True)
     phone_number = models.IntegerField(default = None, null = True)
     address = models.CharField(max_length=50, default = None, null = True)
+    gender = models.CharField(max_length=200, null=True,choices=[('male', 'Nam'),('female', 'Nữ')] ,blank=True)
+    birth = models.DateField(null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     role_id = models.ForeignKey(Role, on_delete=models.CASCADE, default = 1)
@@ -38,5 +40,5 @@ class UserCustom(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     # REQUIRED_FIELDS = ['username']
     objects = AppUserManager()
-    def __str__(self):
+    def __str__(self):  
         return self.username

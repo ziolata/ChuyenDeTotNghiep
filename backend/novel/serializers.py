@@ -8,8 +8,24 @@ from genres.models import Author, Genres
 class NovelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Novel
-        # fields = '__all__'
-        fields = ("id","name","image","genres","description","author","status","views","rating","numReviews","createdAt","updatedAt")
+        fields = '__all__'
+        # fields = ("id","name","image","genres","description","author","status","features","views","rating","numReviews","createdAt","updatedAt")
+
+class NovelNewChapterSerializer(serializers.ModelSerializer):
+    chapters = serializers.SerializerMethodField(read_only=True)
+    genres = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = Novel
+        fields = '__all__'
+    def get_chapters(self, obj):
+        chapter = obj.chapter_set.order_by('-createdAt').first()
+        if chapter:
+            serializer = ChapterSerializer(chapter, many=False)
+            return serializer.data
+        return None  
+    def get_genres(self, obj):
+        genres = obj.genres.all()  # Lấy tất cả các thể loại của tiểu thuyết
+        return [{'id': genre.id, 'name': genre.name} for genre in genres]
 
 class NovelDetailSerializer(serializers.ModelSerializer):
     genres = GenresSerializer(many = True, read_only=True)

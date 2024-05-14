@@ -16,7 +16,8 @@ class Novel(models.Model):
     description = models.TextField(null=True, blank=True)
     author = models.ForeignKey(
         Author, on_delete=models.SET_NULL, null=True, blank=True)
-    status = models.CharField(max_length=200, null=True, blank=True)
+    status = models.CharField(max_length=200, null=True,choices=[('continue', 'tiếp tục'),('stoped', 'Đã dừng lại'), ('complete', 'Hoàn thành')] ,blank=True)
+    features = models.CharField(max_length=200, null=True,choices=[('hot', 'Hot'),('new', 'New'), ('full', 'Full')] ,blank=True)
     views = models.IntegerField(null=True, blank=True, default=0)
     rating = models.FloatField(null=True, blank=True, default=0)
     favorites = models.IntegerField(null=True, blank=True, default=0)

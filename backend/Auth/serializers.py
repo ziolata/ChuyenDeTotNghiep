@@ -30,7 +30,7 @@ class UserProfileSerializers(serializers.ModelSerializer):
     role_name = serializers.ReadOnlyField(source='role_id.name')
     class Meta:
         model = UserCustom
-        fields = ('id','role_id','role_name','username','fullname','is_staff','is_active','address','phone_number','email')
+        fields = ('id','role_id','role_name','username','fullname','is_staff','is_active','address','phone_number','email','gender','birth')
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role

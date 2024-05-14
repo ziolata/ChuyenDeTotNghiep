@@ -2,8 +2,10 @@ from django.shortcuts import render
 from rest_framework import generics, permissions, status, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from .models import *
+from chapter.models import Chapter
+from django.db.models import Subquery, OuterRef
 from rest_framework.response import Response
-from .serializers import NovelSerializer,ReviewSerializer, NovelDetailSerializer
+from .serializers import NovelSerializer,ReviewSerializer, NovelDetailSerializer, NovelNewChapterSerializer
 from django_filters import rest_framework as filters
 from rest_framework import filters
 from rest_framework.pagination import PageNumberPagination
@@ -23,16 +25,41 @@ class NovelList(generics.ListAPIView):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
     permission_classes = [permissions.AllowAny]
-    pagination_class = StandardResultsSetPagination
+    # pagination_class = StandardResultsSetPagination
+    pagination_class = None
 class ReviewList(generics.ListAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [permissions.AllowAny]
 
-class TopNovel(generics.ListAPIView):
+class HotNovelView(generics.ListAPIView):
+    queryset = Novel.objects.all().order_by('-createdAt')[0:8]
+    serializer_class = NovelSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None
+
+class TopNovelView(generics.ListAPIView):
     queryset = Novel.objects.all().order_by('-views')[0:5]
     serializer_class = NovelSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None
+    
+class NewUpdateNovelView(generics.ListAPIView):
+    queryset = Novel.objects.all()[0:11]
+    serializer_class = NovelNewChapterSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None
+    def get_queryset(self):
+        # Lấy danh sách 10 tiểu thuyết mới nhất được thêm chapter gần đây nhất
+        novels_with_latest_chapter = Novel.objects.annotate(
+            latest_chapter_id=Subquery(
+                Chapter.objects.filter(novel_id=OuterRef('pk')).order_by('-createdAt').values('pk')[:1]
+            )
+        ).filter(latest_chapter_id__isnull=False).order_by('-createdAt')[:10]
+
+        return novels_with_latest_chapter
+    
+
     
 class NovelDetailView(mixins.CreateModelMixin,generics.RetrieveAPIView):
     queryset =  Novel.objects.all()

@@ -13,7 +13,7 @@ class ChapterContentSerializer(serializers.ModelSerializer):
 
 class ChapterDetailSerializer(serializers.ModelSerializer):
     chapterContent = serializers.SerializerMethodField(read_only=True)
-
+    novelname = serializers.ReadOnlyField(source='novel.name')
     class Meta:
         model = Chapter
         fields = '__all__'

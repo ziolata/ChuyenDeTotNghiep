@@ -5,10 +5,17 @@ from rest_framework.response import Response
 from .models import *
 from novel.models import Novel
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from novel.serializers import GenresDetailSerializer, AuthorDetailSerializer, NovelSerializer
+from novel.serializers import GenresDetailSerializer, AuthorDetailSerializer,GenresSerializer, NovelSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.status import HTTP_204_NO_CONTENT
 # Create your views here.
+
+class GenresListView(generics.ListAPIView):
+    queryset = Genres.objects.all()
+    serializer_class = GenresSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None
+
 class SearchAdvance(generics.ListAPIView):
     permission_classes = [AllowAny]
 
