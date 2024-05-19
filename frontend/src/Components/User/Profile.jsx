@@ -120,8 +120,8 @@ export default function Profile() {
 							>
 								<option value="">Giới tính</option>
 
-								<option value="male">Nam</option>
-								<option value="female">Nữ</option>
+								<option value="male">male</option>
+								<option value="female">female</option>
 							</select>
 						</div>
 						<div className="relative col-span-6">

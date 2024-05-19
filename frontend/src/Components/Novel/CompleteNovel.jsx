@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getNovel } from "../../utils/API";
+import { getRandomNovel } from "../../utils/API";
 import NewNovelsCarousel from "./Test";
 
 export default function NovelComplete() {
 	const [novel, setNovel] = useState([]);
 
 	useEffect(() => {
-		getNovel(setNovel);
+		getRandomNovel(setNovel);
 	}, []);
 	return (
 		<>
@@ -23,7 +23,7 @@ export default function NovelComplete() {
 										Truyện ngẫu nhiên
 									</span>
 								</h2>
-								
+
 								{/* <i class="fa-solid fa-fire-flame-curved"></i> */}
 							</div>
 						</div>
@@ -70,7 +70,7 @@ export default function NovelComplete() {
 							</div>
 						</div>
 					</div>
-					<NewNovelsCarousel/>
+					<NewNovelsCarousel />
 				</div>
 			</div>
 		</>

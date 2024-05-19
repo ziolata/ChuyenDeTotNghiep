@@ -4,8 +4,13 @@ from django_filters import rest_framework as filters
 from genres.serializers import *
 from chapter.serializers import *
 from genres.models import Author, Genres
+from genres.serializers import GenresSerializer
+
 
 class NovelSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.name')
+    genres = GenresSerializer(read_only=True, many=True)
+
     class Meta:
         model = Novel
         fields = '__all__'
@@ -49,10 +54,11 @@ class NovelDetailSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def get_chapters(self, obj):
-        chapters = obj.chapter_set.all()
+        chapters = obj.chapter_set.all().order_by('createdAt')
         serializer = ChapterSerializer(chapters, many=True)
         return serializer.data
 class ReviewSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.fullname')
     class Meta:
         model = Review
         fields = '__all__'
@@ -78,3 +84,14 @@ class AuthorDetailSerializer(serializers.ModelSerializer):
         novels = obj.novel_set.all()
         serializer = NovelSerializer(novels, many=True)
         return serializer.data
+
+class ReadingHistorySerializer(serializers.ModelSerializer):
+    name = serializers.ReadOnlyField(source='novel.name')
+    novel_image = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = ReadingHistory
+        fields = '__all__'
+        read_only_fields = ('user',)
+    def get_novel_image(self, obj):
+        # Lấy đường dẫn đến ảnh từ trường `image` của đối tượng `Novel` trong `ReadingHistory`
+        return obj.novel.image.url if obj.novel.image else None

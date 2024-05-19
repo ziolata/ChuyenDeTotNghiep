@@ -1,29 +1,29 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions, status, mixins
+from rest_framework import generics, permissions, status, mixins, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from .models import *
 from chapter.models import Chapter
 from django.db.models import Subquery, OuterRef
 from rest_framework.response import Response
-from .serializers import NovelSerializer,ReviewSerializer, NovelDetailSerializer, NovelNewChapterSerializer
+from .serializers import NovelSerializer,ReviewSerializer, NovelDetailSerializer, NovelNewChapterSerializer, ReadingHistorySerializer
 from django_filters import rest_framework as filters
 from rest_framework import filters
 from rest_framework.pagination import PageNumberPagination
 # Create your views here.
 class LargeResultsSetPagination(PageNumberPagination):
-    page_size = 1000
+    page_size = 20
     page_size_query_param = 'page_size'
     max_page_size = 10000
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 16
     page_size_query_param = 'page_size'
     max_page_size = 1000
 class NovelList(generics.ListAPIView):
     queryset = Novel.objects.all()
     serializer_class = NovelSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
+    search_fields = ['name','author__name','genres__name']
     permission_classes = [permissions.AllowAny]
     # pagination_class = StandardResultsSetPagination
     pagination_class = None
@@ -33,7 +33,7 @@ class ReviewList(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
 class HotNovelView(generics.ListAPIView):
-    queryset = Novel.objects.all().order_by('-createdAt')[0:8]
+    queryset = Novel.objects.all().order_by('-createdAt')[0:9]
     serializer_class = NovelSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = None
@@ -152,3 +152,59 @@ class NovelCreateReview(generics.CreateAPIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class NovelList_Page(generics.ListAPIView):
+    queryset = Novel.objects.all()
+    serializer_class = NovelSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name','author__name']
+    permission_classes = [permissions.AllowAny]
+    # pagination_class = StandardResultsSetPagination
+    pagination_class = StandardResultsSetPagination
+
+class NovelRandomView(generics.ListAPIView):
+    serializer_class = NovelSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None
+    def get_queryset(self):
+        total_novels = Novel.objects.count()
+        if total_novels <= 20:
+            return Novel.objects.all().order_by('?')
+        else:
+            random_indices = random.sample(range(total_novels), 20)
+            return Novel.objects.filter(id__in=random_indices)
+
+class ReadingHistoryListCreateView(generics.ListCreateAPIView):
+    queryset = ReadingHistory.objects.all()
+    serializer_class = ReadingHistorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        # Chỉ trả về lịch sử của người dùng hiện tại
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        novel = serializer.validated_data.get('novel')
+        last_read_chapter = serializer.validated_data.get('last_read_chapter')
+        user = self.request.user
+
+        # Kiểm tra xem đã có bản ghi lịch sử đọc cho tiểu thuyết này chưa
+        try:
+            history = ReadingHistory.objects.get(user=user, novel=novel)
+            history.last_read_chapter = last_read_chapter
+            history.save()
+            serializer.instance = history
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ReadingHistory.DoesNotExist:
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ReadingHistoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ReadingHistory.objects.all()
+    serializer_class = ReadingHistorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Chỉ trả về lịch sử của người dùng hiện tại
+        return self.queryset.filter(user=self.request.user)

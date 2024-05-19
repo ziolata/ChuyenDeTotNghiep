@@ -7,9 +7,8 @@ import Login from "./Pages/Login";
 import Signup from "./Pages/Register";
 import SearchClient from "./Components/Client/SearchClient";
 import ProfileClient from "./Components/Client/ProfileClient";
-import NewNovelsCarousel from "./Components/Novel/Test";
-import ListNovel from "./Components/Novel/ListNovel";
 import ListNovelClient from "./Components/Client/ListNovelClient";
+import HistoryClient from "./Components/Client/HistoryNovelClient";
 
 function App() {
 	return (
@@ -22,7 +21,9 @@ function App() {
 				<Route path="/login/" element={<Login />} />
 				<Route path="/register/" element={<Signup />} />
 				<Route path="/profile/" element={<ProfileClient />} />
-				<Route path="/test/" element={<ListNovelClient />} />
+				<Route path="/list-novel/" element={<ListNovelClient />} />
+				<Route path="/history/" element={<HistoryClient />} />
+
 			</Routes>
 		</AuthProvider>
 	);

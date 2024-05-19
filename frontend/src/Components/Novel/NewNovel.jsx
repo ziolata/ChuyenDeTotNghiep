@@ -33,10 +33,10 @@ export default function NewNovel() {
 											</a>
 										</h2>
 										<img
-									src="http://api.noveltop.online/media/new.png"
-									alt=""
-									style={{ width: "50px", height: "50px" }}
-								/>
+											src="http://api.noveltop.online/media/new.png"
+											alt=""
+											style={{ width: "50px", height: "50px" }}
+										/>
 									</div>
 								</div>
 							</div>
@@ -76,14 +76,17 @@ export default function NewNovel() {
 												</div>
 												<div className="story-item-no-image__categories ms-2 d-none d-lg-block">
 													<p className="mb-0">
-														{item.genres.map((genre) => (
+														{item.genres.map((genre, index) => (
 															<a
 																key={genre.id}
 																// biome-ignore lint/style/useTemplate: <explanation>
 																href={"/the-loai/" + genre.id}
 																className="hover-title text-decoration-none text-dark category-name"
 															>
-																{genre.name},{" "}
+																{genre.name}
+																{index < item.genres.length - 1
+																	? ", "
+																	: ""}{" "}
 															</a>
 														))}
 													</p>

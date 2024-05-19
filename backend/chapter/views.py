@@ -5,30 +5,50 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import ChapterSerializer, ChapterDetailSerializer, ChapterContentSerializer
 from rest_framework.pagination import PageNumberPagination
-
+from PyPDF2 import PdfReader
 from docx import Document
 # Create your views here.
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 2
+    page_size = 8
     page_size_query_param = 'page_size'
     max_page_size = 1000
     
+from docx import Document
+from PyPDF2 import PdfReader
+
 class ChapterDetailView(generics.RetrieveAPIView):
     queryset = Chapter.objects.all()
     serializer_class = ChapterDetailSerializer
     permission_classes = [permissions.AllowAny]
 
-    def read_docx_file(self, instance):
+    def read_file(self, instance):
         try:
-            with instance.content.open(mode='rb') as file:
-                doc = Document(file)
-                paragraphs = []
-                for paragraph in doc.paragraphs:
-                    if paragraph.text.strip():
-                        paragraph_text = f"<p>{paragraph.text}</p>"
-                        paragraphs.append(paragraph_text)
-                file_content = '\n'.join(paragraphs)
-                return file_content
+            if instance.content.name.endswith('.docx'):
+                with instance.content.open(mode='rb') as file:
+                    doc = Document(file)
+                    paragraphs = []
+                    for paragraph in doc.paragraphs:
+                        if paragraph.text.strip():
+                            paragraph_text = f"<p>{paragraph.text}</p>"
+                            paragraphs.append(paragraph_text)
+                    file_content = '\n'.join(paragraphs)
+                    return file_content
+            elif instance.content.name.endswith('.pdf'):
+                with instance.content.open(mode='rb') as file:
+                    reader = PdfReader(file)
+                    text = ""
+                    for page_num in range(len(reader.pages)):
+                        page = reader.pages[page_num]
+                        text += "<p>" + page.extract_text().replace("\n", "</p><p>") + "</p>"
+                    return text
+            elif instance.content.name.endswith('.txt'):
+                with instance.content.open(mode='r') as file:
+                    text = file.read()
+                    paragraphs = ["<p>" + line.strip() + "</p>" for line in text.split("\n") if line.strip()]
+                    file_content = '\n'.join(paragraphs)
+                    return file_content
+            else:
+                return "Unsupported file format"
         except Exception as e:
             return str(e)
 
@@ -58,7 +78,7 @@ class ChapterDetailView(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            file_content = self.read_docx_file(instance)
+            file_content = self.read_file(instance)
 
             serializer = self.get_serializer(instance)
             data = serializer.data
@@ -77,17 +97,18 @@ class ChapterDetailView(generics.RetrieveAPIView):
             return Response({'details': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
    
     
 
 class ChapterView(generics.ListAPIView):
-    queryset = Chapter.objects.all()
+    queryset = Chapter.objects.all().order_by('createdAt')
     serializer_class = ChapterSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = StandardResultsSetPagination
     def list(self, request, pk=None):
         try:
-            chapters = Chapter.objects.filter(novel__pk=pk)
+            chapters = Chapter.objects.filter(novel__pk=pk).order_by('createdAt')
             
             # Phân trang cho queryset
             page = self.paginate_queryset(chapters)

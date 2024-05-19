@@ -1,0 +1,50 @@
+.slick-prev {
+    left: 10px; /* Adjust the position as needed */
+    z-index: 1;
+    width: 40px;
+    height: 40px;
+   
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slick-prev:before {
+    content: '←'; /* Use a custom arrow or icon */
+    font-size: 40px;
+    color: black; /* Change the color of the arrow */
+}
+
+/* Override the default styles for the next button */
+.slick-next {
+    right: 10px; /* Adjust the position as needed */
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.5); /* Background color */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slick-next:before {
+    content: '→'; /* Use a custom arrow or icon */
+    font-size: 40px;
+    color: black; /* Change the color of the arrow */
+}
+
+/* You can also customize the dots if needed */
+.slick-dots li button:before {
+    font-size: 12px;
+    color: white;
+}
+
+.slick-dots li.slick-active button:before {
+    color: transparent; /* Make active dot invisible */
+}
+
+.slick-dots {
+    display: none; 
+}

@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 from corsheaders.defaults import default_headers
 from datetime import timedelta
+from django.utils.translation import gettext_lazy as _
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -15,9 +16,9 @@ SECRET_KEY = 'django-insecure-oz0-we#0f*_=g@u5jbxw@u6@y#utt_zn7=pc9#6&vsw@!d*!as
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['103.245.237.122','127.0.0.1','www.noveltop.online','api.noveltop.online']
 CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:3000',
+    'http://www.noveltop.online',
     'http://localhost:3000',
 ]
 CORS_ALLOW_METHODS = [
@@ -46,6 +47,7 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8000',
 )
 INSTALLED_APPS = [
+    'clearcache',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
     'novel.apps.NovelConfig',
     'chapter.apps.ChapterConfig',
     'genres.apps.GenresConfig',
+    'Review_Web.apps.ReviewWebConfig',
     'rest_framework_simplejwt.token_blacklist',
     
 ]
@@ -194,8 +197,14 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
+LANGUAGES = [
+    ('en', _('English')),
+    ('vi', _('Vietnamese')),
+]
+LANGUAGE_CODE = 'vi-vn'
+LOCALE_PATHS = [
+    'backend/locale',
+]
 
 TIME_ZONE = 'UTC'
 
@@ -206,17 +215,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-STATIC_URL = 'static/'
-STATICFILES_DIR = [
-    os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    "/inetpub/wwwroot/static/",
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 MEDIA_URL =  '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'USER_CREATE_PASSWORD_RETYPE': True

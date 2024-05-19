@@ -2,12 +2,12 @@ import { Fragment, useContext } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import AuthContext from "../../hooks/AuthContext";
+import Search from "./Search";
 
 const navigation = [
-	{ name: "Trang chủ", href: "#", current: true },
-	{ name: "Tiểu thuyết", href: "#", current: false },
-	{ name: "Thể loại", href: "#", current: false },
-	{ name: "Đánh giá website", href: "#", current: false },
+	{ name: "Trang chủ", href: "/", current: true },
+	{ name: "Tiểu thuyết", href: "/list-novel", current: false },
+	{ name: "Tìm kiếm", href: "/search", current: false },
 ];
 
 function classNames(...classes) {
@@ -56,6 +56,15 @@ export default function Navigation() {
 								</div>
 							</div>
 							<div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+								{/* <div className="flex space-x-4 ">
+									<a
+										href="/login"
+										className="text-white hover:bg-gray-700 hover:text-grey"
+									>
+										<Search />
+									</a>
+								</div> */}
+
 								{/* Profile dropdown */}
 								{user ? (
 									<Menu as="div" className="relative ml-3">
@@ -93,7 +102,19 @@ export default function Navigation() {
 														</a>
 													)}
 												</Menu.Item>
-
+												<Menu.Item>
+													{({ active }) => (
+														<a
+															href="/history/"
+															className={classNames(
+																active ? "bg-gray-100" : "",
+																"block px-4 py-2 text-sm text-gray-700",
+															)}
+														>
+															Lịch sử tiểu thuyết đọc
+														</a>
+													)}
+												</Menu.Item>
 												<Menu.Item>
 													{({ active }) => (
 														<a

@@ -4,6 +4,7 @@ import { getHotNovel } from "../../utils/API";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import "./Slide.css";
 const settings = {
 	className: "center",
 	centerMode: true,
@@ -11,7 +12,7 @@ const settings = {
 	slidesToShow: 4,
 	autoplay: true,
 	speed: 500,
-	dots: true,
+	dots: false,
 	responsive: [
 		{
 			breakpoint: 1024,
@@ -63,11 +64,10 @@ const NewNovelsCarousel = () => {
 						<div>
 							<div className="book-card__title">
 								<a href={`novel/${manga.id}`}>
-								<h3 className="text-center text-one-row story-name">
-									{manga.name}
-								</h3>
+									<h3 className="text-center text-one-row story-name">
+										{manga.name}
+									</h3>
 								</a>
-								
 							</div>
 							<div className="book-card__author">
 								<p value={manga.rating} />

@@ -21,6 +21,7 @@ const StarRating = ({ value, onClick }) => {
 };
 
 export default function NovelDetail() {
+	const [displayedReviews, setDisplayedReviews] = useState(4);
 	const csrftoken = Cookies.get("csrftoken");
 	const [rating, setRating] = useState(0);
 	const handleRatingChange = (value) => {
@@ -117,6 +118,24 @@ export default function NovelDetail() {
 			}
 		}
 	};
+	const handleHistory = async (chapterId) => {
+		try {
+			const response = await axios.post(
+				"http://api.noveltop.online/api/novel/history/",
+				{
+					novel: id,
+					last_read_chapter: chapterId,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${authTokens.access}`,
+					},
+				},
+			);
+		} catch (error) {
+			console.error("Lỗi:", error);
+		}
+	};
 	return (
 		<>
 			<div className="text-center border-bottom bg-light">
@@ -185,7 +204,7 @@ export default function NovelDetail() {
 													{Array.from({
 														length: Math.floor(novelDetail.rating),
 													}).map((_, index) => (
-														// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+														// biome-ignore lint/correctness/useJsxKeyInIterable: <explanation>
 														<i className="fa fa-star star" />
 													))}
 													{novelDetail.rating % 1 >= 0.5 &&
@@ -319,12 +338,11 @@ export default function NovelDetail() {
 										{chapter.results?.map((chapter, index) => (
 											<tr key={chapter._id}>
 												<td>
-													<Link
-														to={`/chapter/${chapter.id}`}
-													>
+												<Link to={`/chapter/${chapter.id}`} onClick={() => handleHistory(chapter.number)}>
 														Chương {chapter.number}:{chapter.name}
 													</Link>
 												</td>
+												
 												<td>{chapter.views}</td>
 												<td>{chapter.createdAt.substring(0, 10)}</td>
 											</tr>
@@ -351,14 +369,26 @@ export default function NovelDetail() {
 									</ul>
 								</div>
 								<div className="my-3">
-									<h2>Reviews</h2>
+									<h2 className="pb-1 mb-0 me-2 border-secondary">
+										<span
+											href="#"
+											className="d-block text-decoration-none text-dark fs-4 title-head-name"
+											title="Truyện hot"
+										>
+											Đánh giá
+										</span>
+									</h2>
 									{/* biome-ignore lint/complexity/useOptionalChain: <explanation> */}
 									{novelDetail &&
 									novelDetail.reviews &&
 									novelDetail.reviews?.length > 0 ? (
-										<p>Số lượt đánh giá: {novelDetail.reviews.length}</p>
+										<h2 className="pb-1 mb-0 me-2 border-secondar">
+											Số lượt đánh giá: {novelDetail.reviews.length}
+										</h2>
 									) : (
-										<p>Không có đánh giá nào</p>
+										<h2 className="pb-1 mb-0 me-2 border-secondar">
+											Không có đánh giá nào
+										</h2>
 									)}
 									<ListGroup variant="flush">
 										{userinfo && (
@@ -400,21 +430,76 @@ export default function NovelDetail() {
 											</ListGroup.Item>
 										)}
 
-										{novelDetail.reviews?.map((review, index) => (
-											<ListGroup.Item key={review._id}>
-												<strong>{review.username}</strong>
-												<div>
-													{Array.from({ length: review.rating }, (_, index) => (
-														// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-														<span key={index} className="star">
-															&#9733;
-														</span>
-													))}
-												</div>
-												<p>{review.createdAt.substring(0, 10)}</p>
-												<p>{review.comment}</p>
+										{/* {novelDetail.reviews
+											?.slice(0, displayedReviews)
+											.map((review, index) => (
+												<ListGroup.Item key={review._id}>
+													<strong>{review.username}</strong>
+													<div>
+														{Array.from(
+															{ length: review.rating },
+															(_, index) => (
+																// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+																<span key={index} className="star">
+																	&#9733;
+																</span>
+															),
+														)}
+													</div>
+													<p>{review.createdAt.substring(0, 10)}</p>
+													<p>{review.comment}</p>
+												</ListGroup.Item>
+											))} */}
+										{novelDetail.reviews
+											?.slice(0, displayedReviews)
+											.map((review, index) => (
+												<ListGroup.Item key={review._id}>
+													<div>
+														{Array.from(
+															{ length: review.rating },
+															(_, index) => (
+																// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+																<span key={index} className="star">
+																	&#9733;
+																</span>
+															),
+														)}
+													</div>
+													<div className="d-flex justify-content-between align-items-center">
+														{" "}
+														{/* Horizontal layout */}
+														<strong>{review.username}</strong> {/* Username */}
+														<div className="text-muted">
+															{" "}
+															{/* Muted text for date and year */}
+															<span>Ngày đánh giá: </span>
+															{review.createdAt
+																.substring(0, 10)
+																.split("-")
+																.reverse()
+																.join("/")}{" "}
+															{/* Format date (YYYY-MM-DD to DD/MM/YYYY) */}
+														</div>
+													</div>
+													<div>
+														{/* ... rest of the review details (rating stars, etc.) */}
+													</div>
+													<p>{review.comment}</p>
+												</ListGroup.Item>
+											))}
+
+										{novelDetail.reviews?.length > displayedReviews && (
+											<ListGroup.Item>
+												<Button
+													variant="link"
+													onClick={() =>
+														setDisplayedReviews(novelDetail.reviews.length)
+													}
+												>
+													Xem thêm ({novelDetail.reviews.length} đánh giá)
+												</Button>
 											</ListGroup.Item>
-										))}
+										)}
 									</ListGroup>
 								</div>
 							</div>
